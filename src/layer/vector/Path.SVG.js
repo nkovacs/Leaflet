@@ -128,6 +128,19 @@ L.Path = L.Path.extend({
 		}
 	},
 
+	_deinitEvents: function() {
+		if (this.options.clickable) {
+
+			L.DomEvent.off(this._container, 'click', this._onMouseClick, this);
+
+			var events = ['dblclick', 'mousedown', 'mouseover',
+			              'mouseout', 'mousemove', 'contextmenu'];
+			for (var i = 0; i < events.length; i++) {
+				L.DomEvent.off(this._container, events[i], this._fireMouseEvent, this);
+			}
+		}
+	},
+
 	_onMouseClick: function (e) {
 		if (this._map.dragging && this._map.dragging.moved()) { return; }
 

@@ -65,6 +65,8 @@ L.Path = L.Class.extend({
 	},
 
 	onRemove: function (map) {
+		this._deinitEvents();
+
 		map._pathRoot.removeChild(this._container);
 
 		// Need to fire remove event before we set _map to null as the event hooks might need the object

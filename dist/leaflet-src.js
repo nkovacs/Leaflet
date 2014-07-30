@@ -3593,7 +3593,7 @@ L.Marker = L.Class.extend({
 			if (options.title) {
 				icon.title = options.title;
 			}
-			
+
 			if (options.alt) {
 				icon.alt = options.alt;
 			}
@@ -3646,6 +3646,8 @@ L.Marker = L.Class.extend({
 	},
 
 	_removeIcon: function () {
+		this._deinitInteraction();
+
 		if (this.options.riseOnHover) {
 			L.DomEvent
 			    .off(this._icon, 'mouseover', this._bringToFront)
@@ -3710,6 +3712,29 @@ L.Marker = L.Class.extend({
 				this.dragging.enable();
 			}
 		}
+	},
+
+	_deinitInteraction: function () {
+
+		if (!this.options.clickable) { return; }
+
+		var icon = this._icon,
+		    events = ['dblclick', 'mousedown', 'mouseover', 'mouseout', 'contextmenu'];
+
+		L.DomEvent.off(icon, 'click', this._onMouseClick, this);
+		L.DomEvent.off(icon, 'keypress', this._onKeyPress, this);
+
+		for (var i = 0; i < events.length; i++) {
+			L.DomEvent.off(icon, events[i], this._fireMouseEvent, this);
+		}
+
+		/*if (L.Handler.MarkerDrag) {
+			this.dragging = new L.Handler.MarkerDrag(this);
+
+			if (this.options.draggable) {
+				this.dragging.enable();
+			}
+		}*/
 	},
 
 	_onMouseClick: function (e) {
@@ -4549,6 +4574,8 @@ L.Path = L.Class.extend({
 	},
 
 	onRemove: function (map) {
+		this._deinitEvents();
+
 		map._pathRoot.removeChild(this._container);
 
 		// Need to fire remove event before we set _map to null as the event hooks might need the object
@@ -4729,6 +4756,19 @@ L.Path = L.Path.extend({
 			              'mouseout', 'mousemove', 'contextmenu'];
 			for (var i = 0; i < events.length; i++) {
 				L.DomEvent.on(this._container, events[i], this._fireMouseEvent, this);
+			}
+		}
+	},
+
+	_deinitEvents: function() {
+		if (this.options.clickable) {
+
+			L.DomEvent.off(this._container, 'click', this._onMouseClick, this);
+
+			var events = ['dblclick', 'mousedown', 'mouseover',
+			              'mouseout', 'mousemove', 'contextmenu'];
+			for (var i = 0; i < events.length; i++) {
+				L.DomEvent.off(this._container, events[i], this._fireMouseEvent, this);
 			}
 		}
 	},
